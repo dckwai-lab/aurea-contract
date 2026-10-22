@@ -1,0 +1,11 @@
+C:\Users\Kwai PC\aurea-contract\target\wasm32-unknown-unknown\release\deps\digest_io-e647ee9a27533576.d: C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\lib.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\io_wrapper.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\reader.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\writer.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\../README.md
+
+C:\Users\Kwai PC\aurea-contract\target\wasm32-unknown-unknown\release\deps\libdigest_io-e647ee9a27533576.rlib: C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\lib.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\io_wrapper.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\reader.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\writer.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\../README.md
+
+C:\Users\Kwai PC\aurea-contract\target\wasm32-unknown-unknown\release\deps\libdigest_io-e647ee9a27533576.rmeta: C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\lib.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\io_wrapper.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\reader.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\writer.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\../README.md
+
+C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\lib.rs:
+C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\io_wrapper.rs:
+C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\reader.rs:
+C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\writer.rs:
+C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\digest-io-0.1.0\src\../README.md:

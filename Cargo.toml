@@ -1,0 +1,9 @@
+[package]
+name = "aurea-contract"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+near-sdk = "5.29.1"
+[lib]
+crate-type = ["cdylib", "rlib"]
