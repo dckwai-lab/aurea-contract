@@ -1,9 +1,0 @@
-C:\Users\Kwai PC\aurea-contract\target\wasm32-unknown-unknown\release\deps\near_global_contracts-b4ecdf7fd49ba5ac.d: C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\lib.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\global_contract_identifier.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\state_init.rs
-
-C:\Users\Kwai PC\aurea-contract\target\wasm32-unknown-unknown\release\deps\libnear_global_contracts-b4ecdf7fd49ba5ac.rlib: C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\lib.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\global_contract_identifier.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\state_init.rs
-
-C:\Users\Kwai PC\aurea-contract\target\wasm32-unknown-unknown\release\deps\libnear_global_contracts-b4ecdf7fd49ba5ac.rmeta: C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\lib.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\global_contract_identifier.rs C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\state_init.rs
-
-C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\lib.rs:
-C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\global_contract_identifier.rs:
-C:\Users\Kwai\ PC\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\near-global-contracts-0.2.6\src\state_init.rs:
