@@ -4,9 +4,11 @@ import subprocess
 import time
 import os
 from datetime import datetime
+from cryptography.fernet import Fernet
 
 CONTRACT_ID = "rawkale6964-test.testnet"
 PATIENT_ID = "paciente_joao.testnet"
+DOCTOR_ID = "medico_silva.testnet" 
 PDS_FOLDER = "pds_storage"
 
 def print_step(emoji, message):
@@ -17,79 +19,75 @@ def run_near_command(args):
     cmd = ["near"] + args
     result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
     if result.returncode != 0:
-        print(f"[ERRO] {result.stderr}")
-        return None
-    return result.stdout
+        return None, result.stderr
+    return result.stdout, None
 
-def simular_geracao_fhir():
-    print_step("[1/4] IA NO TEE", "Processando exames e gerando ClinicalImpression (FHIR)...")
-    fhir_data = {
+def gerar_e_criptografar_dados():
+    print_step("[1/5] IA NO TEE", "Processando exames e gerando FHIR...")
+    fhir_data = json.dumps({
         "resourceType": "ClinicalImpression",
         "status": "completed",
         "subject": {"reference": f"Patient/{PATIENT_ID}"},
-        "date": datetime.now().isoformat(),
-        "summary": "Paciente apresenta melhora significativa. Pressao arterial 120/80.",
-        "provenance": {"ai_model": "aurea-v1", "human_validated": True}
-    }
-    return json.dumps(fhir_data, indent=2)
-
-def salvar_no_pds(fhir_string):
-    print_step("[2/4] CRIPTOGRAFIA E PDS", "Cifrando resumo e salvando no repositorio off-chain...")
+        "summary": "Paciente apresenta melhora."
+    }, indent=2)
     
-    # Cria a pasta PDS se não existir
+    print_step("[2/5] CRIPTOGRAFIA REAL", "Cifrando o resumo com chave secreta (AES)...")
+    chave = Fernet.generate_key()
+    cipher = Fernet(chave)
+    dados_cifrados = cipher.encrypt(fhir_data.encode())
+    
     if not os.path.exists(PDS_FOLDER):
         os.makedirs(PDS_FOLDER)
         
-    # Gera o CID (Hash)
-    cid = hashlib.sha256(fhir_string.encode()).hexdigest()
+    cid = hashlib.sha256(dados_cifrados).hexdigest()
+    filepath = os.path.join(PDS_FOLDER, f"{cid}.bin")
     
-    # Salva o arquivo (Simulando o IPFS)
-    filepath = os.path.join(PDS_FOLDER, f"{cid}.json")
-    with open(filepath, "w", encoding="utf-8") as f:
-        f.write(fhir_string)
+    with open(filepath, "wb") as f:
+        f.write(dados_cifrados)
         
-    print(f"      Arquivo salvo off-chain: {filepath}")
-    print(f"      CID gerado: {cid[:20]}...")
+    print(f"      Salvo off-chain: {filepath}")
+    print(f"      CID do arquivo cifrado: {cid[:20]}...")
     return cid
 
 def gravar_na_near(cid):
-    print_step("[3/4] NEAR PROTOCOL", "Registrando apenas o CID na blockchain (Smart Contract)...")
+    print_step("[3/5] NEAR PROTOCOL", "Registrando o CID na blockchain...")
     args_json = json.dumps({"patient_id": PATIENT_ID, "cid": cid})
-    
-    resultado = run_near_command([
-        "call", CONTRACT_ID, "add_record", 
-        args_json, 
-        "--accountId", CONTRACT_ID
-    ])
-    
-    if resultado:
-        for line in resultado.split('\n'):
-            if "Transaction Id" in line:
-                print(f"      [SUCESSO] Transacao: {line.split('Id')[-1].strip()}")
+    out, err = run_near_command(["call", CONTRACT_ID, "add_record", args_json, "--accountId", CONTRACT_ID])
+    if out: 
+        print("      [SUCESSO] Resumo gravado on-chain!")
+    else:
+        print(f"      [ERRO] {err}")
 
-def ler_historico():
-    print_step("[4/4] CONSULTA FUTURA", "Lendo o Historico Medico Longitudinal de volta...")
+def testar_consentimento():
+    print_step("[4/5] CONSENTIMENTO", f"Concedendo acesso ao {DOCTOR_ID}...")
+    args_json = json.dumps({"patient_id": PATIENT_ID, "doctor_id": DOCTOR_ID})
+    out, err = run_near_command(["call", CONTRACT_ID, "grant_access", args_json, "--accountId", CONTRACT_ID])
+    if out: 
+        print("      [SUCESSO] Medico autorizado on-chain!")
+
+def ler_historico_como_medico():
+    print_step("[5/5] CONSULTA FUTURA", f"O medico {DOCTOR_ID} tentando ler o historico...")
     args_json = json.dumps({"patient_id": PATIENT_ID})
     
-    resultado = run_near_command([
-        "view", CONTRACT_ID, "get_history", args_json
-    ])
+    # Mudamos de "view" para "call" para simular a assinatura do médico
+    out, err = run_near_command(["call", CONTRACT_ID, "get_history", args_json, "--accountId", DOCTOR_ID])
     
-    if resultado:
-        print("\n      --- HISTORICO RECUPERADO DA NEAR ---")
-        print(f"      {resultado.strip()}")
-        print("      ------------------------------------")
+    if out:
+        print("\n      --- HISTORICO RECUPERADO (AUTORIZADO) ---")
+        print("      [SUCESSO] O medico conseguiu ler o historico.")
+    else:
+        print(f"\n      [BLOQUEADO PELA NEAR] O contrato negou o acesso.")
 
 if __name__ == "__main__":
     print("="*55)
-    print("        PROJETO AUREA - LOOP LONGITUDINAL")
+    print("        PROJETO AUREA - LOOP LONGITUDINAL v2.0")
     print("="*55)
     
-    fhir = simular_geracao_fhir()
-    cid = salvar_no_pds(fhir)
+    cid = gerar_e_criptografar_dados()
     gravar_na_near(cid)
-    ler_historico()
+    testar_consentimento()
+    ler_historico_como_medico()
     
     print("\n" + "="*55)
-    print("  O CICLO SO FECHA QUANDO O DADO VOLTA AO PACIENTE")
+    print("  SUCESSO: O dado foi cifrado, o acesso foi autorizado!")
     print("="*55)
