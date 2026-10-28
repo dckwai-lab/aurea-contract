@@ -1,17 +1,20 @@
 # 🌟 Áurea - Histórico Médico Longitudinal Soberano
 
-## O Problema
-O médico tem 15 minutos de consulta para ler um histórico de 15 anos. O uso de LLMs em nuvem padrão sem salvaguardas adequadas impõe riscos severos de conformidade com a LGPD/HIPAA. Além disso, quando o paciente troca de rede, perde o histórico longitudinal, gerando silos de dados e decisões clínicas subótimas.
+## 📌 O Problema
+O médico tem 15 minutos de consulta para ler um histórico de 15 anos. O uso de LLMs em nuvem padrão sem salvaguardas adequadas impõe riscos severos de conformidade com a LGPD e o HIPAA. Além disso, quando o paciente troca de rede ou de médico, ele perde o acesso ao seu histórico longitudinal, gerando silos de dados, exames repetidos e decisões clínicas subótimas.
 
-## A Solução
-O Áurea processa exames, gera sínteses em **HL7/FHIR**, exige validação humana e **devolve o resumo cifrado ao repositório do paciente**. A blockchain NEAR atua como o cartório descentralizado de consentimento: o paciente decide quem pode acessar o dado, e o contrato inteligente garante o bloqueio de acessos não autorizados, sem nunca armazenar o dado de saúde em si.
+## 💡 A Solução
+O Áurea é uma infraestrutura de inteligência clínica que processa exames, gera sínteses em **HL7/FHIR**, exige validação humana e **devolve o resumo cifrado ao repositório do paciente**. 
+
+A blockchain **NEAR Protocol** atua como o cartório descentralizado de consentimento: o paciente decide quem pode acessar o dado, e o contrato inteligente garante o bloqueio de acessos não autorizados, sem nunca armazenar o dado de saúde on-chain.
 
 ## 🔒 Destaques Técnicos (Privacy & Private AI)
-- **Graph RAG & Agent Swarms:** A arquitetura do TEE é desenhada para ir além do resumo linear. O motor extrai "nós" de um Grafo Clínico (sintomas, exames, medicamentos) e os processa em múltiplos loops paralelos de agentes, garantindo uma análise clínica profunda antes da geração do FHIR.
-- **Criptografia AES:** Os resumos gerados são cifrados via `cryptography` (Fernet) antes de irem para o armazenamento off-chain (PDS).
-- **Consentimento On-Chain:** O Smart Contract na NEAR possui funções de `grant_access` (conceder) e `revoke_access` (revogar), garantindo soberania total ao paciente.
+
+- **Graph RAG & Agent Swarms:** A arquitetura do TEE (Enclave Seguro) vai além do resumo linear. O motor extrai "nós" de um Grafo Clínico (sintomas, exames, medicamentos) e os processa em múltiplos loops paralelos de agentes, garantindo uma análise clínica profunda antes da geração do FHIR.
+- **Criptografia AES Real:** Os resumos gerados são cifrados via `cryptography` (Fernet) antes de irem para o armazenamento off-chain (PDS - Personal Data Store).
+- **Consentimento On-Chain:** O Smart Contract na NEAR possui funções de `grant_access` (conceder) e `revoke_access` (revogar), garantindo a soberania do paciente sobre seus dados.
 - **Controle de Acesso Rígido:** A função `get_history` no contrato Rust verifica a identidade de quem chama. Se um médico não tiver autorização explícita do paciente, o contrato **bloqueia a leitura**.
-- **Redução de Exposição:** O processamento ocorre em ambiente isolado (TEE simulado na demo). O roadmap inclui a implementação de atestação de hardware real e a gestão segura do ciclo de vida das chaves criptográficas.
+- **Redução de Exposição:** O processamento ocorre em ambiente isolado (TEE simulado na demo). O roadmap inclui a implementação de atestação de hardware real e a gestão segura do ciclo de vida das chaves.
 
 ## 🚀 Como testar (How to try it)
 
@@ -46,22 +49,21 @@ O "Loop Áurea" está funcional na NEAR Testnet, resolvendo o problema de fragme
 - [x] **Criptografia AES Real**: Resumos cifrados off-chain com a biblioteca Fernet.
 - [x] **Consentimento On-Chain**: Funções `grant_access` e `revoke_access` no contrato.
 - [x] **Controle de Acesso**: Bloqueio de leitura para médicos não autorizados pelo paciente.
-- [x] **Agente Clínico (Simulado)**: Geração de resumos em HL7 FHIR com validação humana (HITL).
+- [x] **Agente Clínico (Simulado)**: Extração de nós (Graph RAG) e geração de FHIR com validação humana (HITL).
 
 ### 🚀 Fase 2: Confiabilidade Técnica e Clínica (Q1 2027)
-Foco em transformar o MVP técnico em uma ferramenta clínica segura e auditável.
+Foco em transformar o MVP técnico em uma ferramenta clínica segura, auditável e utilizável.
 - [ ] **TEE Real (Atestação)**: Migrar a simulação Python para a **NEAR AI Cloud** (ou enclaves AWS Nitro), garantindo isolamento criptográfico comprovado por hardware.
-- [ ] **Grafo Clínico Real (Graph RAG)**: Substituir os nós simulados por um banco de dados em grafo real (ex: Neo4j) processado dentro do enclave seguro.
+- [ ] **Gestão de Chaves (Social Recovery)**: Implementar a recuperação da chave do paciente via "guardiões" (contatos de confiança ou multisig), garantindo que a perda do dispositivo não signifique a perda do histórico médico.
+- [ ] **Dashboard HITL (Frontend)**: Criar a interface em React/Next.js para o médico revisar, ajustar e assinar digitalmente as condutas (substituindo o terminal).
 - [ ] **Prova de Conceito Auditável**: Criar suíte de testes com casos clínicos sintéticos para medir a taxa de omissões e a confiabilidade das sínteses.
-- [ ] **Modelo de Ameaças**: Documentar o fluxo de chaves, rotação de credenciais e recuperação de conta (Social Recovery).
-- [ ] **Dashboard HITL (Frontend)**: Interface em React/Next.js para o médico revisar, ajustar e assinar digitalmente as condutas.
 
-### 🌐 Fase 3: Escala, RNDS e Mercado (Q2 a Q4 2027)
-Validação do modelo de negócios e integração com o ecossistema de saúde brasileiro.
+### 🌐 Fase 3: Escala, RNDS e Modelo de Negócio (Q2 a Q4 2027)
+Validação do modelo de negócios, custos de infraestrutura e integração com o ecossistema de saúde brasileiro.
 - [ ] **Integração RNDS/DATASUS**: Adequar o mapeamento FHIR para o modelo RAC (Registro de Atendimento Clínico) e obter credenciamento.
-- [ ] **Piloto Institucional**: Validar a adoção e a economia de tempo (ROI) em uma clínica ou hospital parceiro.
+- [ ] **Análise de Custo Unitário (ROI)**: Validar o custo total por consulta (inferência TEE + IA + armazenamento + NEAR) e comprovar a disposição a pagar das clínicas.
 - [ ] **Modelo B2B2C**: Lançar assinatura para clínicas (acesso ao Dashboard e IA) mantendo o acesso do paciente gratuito e soberano.
-- [ ] **Governança e LGPD**: Estruturar o DPIA (Data Protection Impact Assessment) e a base legal para dados em produção.
+- [ ] **Piloto Institucional**: Validar a adoção e a economia de tempo (ROI) em uma clínica ou hospital parceiro.
 
 ### 💡 Fase 4: Expansão de Arquitetura (2028+)
 Uso da nossa infraestrutura de confiança em novos mercados.
