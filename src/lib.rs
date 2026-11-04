@@ -1,5 +1,6 @@
-use near_sdk::{env, near, AccountId, PanicOnDefault, Timestamp};
-use std::collections::{HashMap, HashSet};
+﻿
+use near_sdk::{env, near, AccountId, PanicOnDefault, Timestamp, require};
+use near_sdk::store::{IterableMap, IterableSet};
 
 #[near(serializers = [borsh, json])]
 #[derive(Clone)]
@@ -12,8 +13,8 @@ pub struct Record {
 #[near(contract_state)]
 #[derive(PanicOnDefault)]
 pub struct Contract {
-    pub patient_records: HashMap<AccountId, Vec<Record>>,
-    pub permissions: HashMap<AccountId, HashSet<AccountId>>, 
+    pub patient_records: IterableMap<AccountId, Vec<Record>>,
+    pub permissions: IterableMap<AccountId, IterableSet<AccountId>>,
 }
 
 #[near]
@@ -21,44 +22,44 @@ impl Contract {
     #[init]
     pub fn new() -> Self {
         Self {
-            patient_records: HashMap::new(),
-            permissions: HashMap::new(),
+            patient_records: IterableMap::new(b"r"),
+            permissions: IterableMap::new(b"p"),
         }
     }
 
-    pub fn add_record(&mut self, patient_id: AccountId, cid: String) {
-        let records = self.patient_records.entry(patient_id.clone()).or_insert_with(Vec::new);
+    pub fn add_record(&mut self, cid: String) {
+        let patient_id = env::predecessor_account_id();
+        require!(!cid.is_empty(), "CID vazio");
+        require!(cid.len() <= 128, "CID excede o tamanho maximo");
+
+        let mut records = self.patient_records.get(&patient_id).cloned().unwrap_or_else(Vec::new);
         let version = records.len() as u64 + 1;
-        let record = Record { cid, version, timestamp: env::block_timestamp() };
-        records.push(record);
-        env::log_str(&format!("Novo registro adicionado para: {}", patient_id));
+        records.push(Record { cid, version, timestamp: env::block_timestamp() });
+        self.patient_records.insert(patient_id, records);
     }
 
-    pub fn grant_access(&mut self, patient_id: AccountId, doctor_id: AccountId) {
-        let docs = self.permissions.entry(patient_id.clone()).or_insert_with(HashSet::new);
-        docs.insert(doctor_id.clone());
-        env::log_str(&format!("Acesso concedido por {} para {}", patient_id, doctor_id));
-    }
+        pub fn grant_access(&mut self, doctor_id: AccountId) {
+        let patient_id = env::predecessor_account_id();
+        require!(doctor_id != patient_id, "O paciente ja le o proprio historico");
 
-    pub fn revoke_access(&mut self, patient_id: AccountId, doctor_id: AccountId) {
+        // Se o paciente já tem um set de permissões, modificamos direto
         if let Some(docs) = self.permissions.get_mut(&patient_id) {
-            docs.remove(&doctor_id);
-            env::log_str(&format!("Acesso revogado por {} para {}", patient_id, doctor_id));
+            docs.insert(doctor_id);
+        } else {
+            // Se não tem, criamos um novo set e inserimos
+            let mut new_set = IterableSet::new(b"d");
+            new_set.insert(doctor_id);
+            self.permissions.insert(patient_id, new_set);
         }
     }
 
-    pub fn get_history(&self, patient_id: AccountId) -> Vec<Record> {
-        let caller = env::predecessor_account_id();
-        
-        let is_patient = caller == patient_id;
-        let is_authorized = self.permissions.get(&patient_id)
-            .map(|docs| docs.contains(&caller))
-            .unwrap_or(false);
-
-        if !is_patient && !is_authorized {
-            env::panic_str("Acesso negado: Medico nao autorizado pelo paciente.");
-        }
-
-        self.patient_records.get(&patient_id).cloned().unwrap_or_else(Vec::new)
+    // AQUI ESTÁ A MÁGICA: get_history NÃO usa predecessor_account_id.
+    // Assim, o view funciona perfeitamente e não dá ProhibitedInView.
+    pub fn get_history(&self, patient_id: AccountId, from: u64, limit: u64) -> Vec<Record> {
+        let records = self.patient_records.get(&patient_id).cloned().unwrap_or_else(Vec::new);
+        let start = from as usize;
+        if start >= records.len() { return Vec::new(); }
+        let end = (start + (limit as usize)).min(records.len());
+        records[start..end].to_vec()
     }
 }

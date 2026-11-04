@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Aurea Dashboard</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        .header { display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 20px; margin-bottom: 20px; }
+        .btn { background-color: #0ea5e9; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .card { background-color: #1e293b; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #334155; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState } = React;
+        const CONTRACT_ID = "rawkale6964-test.testnet";
+        const PATIENT_ACCOUNT = "rawkale6964-test.testnet";
+
+        function App() {
+            const [accountId, setAccountId] = useState(null);
+            const [history, setHistory] = useState([]);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState("");
+
+            function connectWallet() {
+                setAccountId(PATIENT_ACCOUNT);
+                setError("");
+            }
+
+            async function loadHistory() {
+                setLoading(true);
+                setError("");
+                try {
+                    const response = await fetch("https://rpc.testnet.near.org", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            jsonrpc: "2.0", id: "dontcare", method: "query",
+                            params: {
+                                request_type: "call_function", finality: "final",
+                                account_id: CONTRACT_ID, method_name: "get_history",
+                                args_base64: btoa(JSON.stringify({ patient_id: PATIENT_ACCOUNT, from: 0, limit: 10 }))
+                            }
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    // Verifica se o RPC retornou a estrutura esperada
+                    if (data.result && data.result.result) {
+                        // O near-sdk 5.x retorna os bytes em Base64 ou como array. 
+                        // A forma mais segura é decodificar direto do array de bytes.
+                        const bytes = new Uint8Array(data.result.result);
+                        const text = new TextDecoder().decode(bytes);
+                        const result = JSON.parse(text);
+                        
+                        if (Array.isArray(result)) {
+                            setHistory(result);
+                            if (result.length === 0) setError("O contrato está vazio para esta conta.");
+                        } else {
+                            // Se o contrato retornou algo diferente de um array, mostra o erro
+                            setError("Formato inesperado: " + text);
+                        }
+                    } else {
+                        setError("O RPC não retornou dados. Verifique se o contrato existe.");
+                    }
+                } catch (e) {
+                    setError("Erro: " + e.message);
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>🌟 Áurea Dashboard</h1>
+                        <button className="btn" onClick={connectWallet}>
+                            {accountId ? `Desconectar (${accountId})` : "Conectar Carteira NEAR"}
+                        </button>
+                    </div>
+                    {error && <p style={{color: '#f87171'}}>{error}</p>}
+                    {accountId && (
+                        <div className="card">
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                <h2>Histórico do Paciente</h2>
+                                <button className="btn" onClick={loadHistory} disabled={loading}>
+                                    {loading ? "Carregando..." : "Atualizar Histórico"}
+                                </button>
+                            </div>
+                            {history.length === 0 ? <p>Nenhum registro.</p> : (
+                                <table>
+                                    <thead><tr><th>Versão</th><th>CID</th><th>Data</th></tr></thead>
+                                    <tbody>
+                                        {history.map((r, i) => (
+                                            <tr key={i}>
+                                                <td>v{r.version}</td>
+                                                <td style={{fontFamily: 'monospace'}}>{r.cid.substring(0, 20)}...</td>
+                                                <td>{new Date(r.timestamp / 1000000).toLocaleString()}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
